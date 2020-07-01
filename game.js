@@ -47,6 +47,7 @@ canvas.addEventListener('click',function(evt){
         swooshing_s.play();
         break;
         case state.game:
+        if(bird.y - bird.radius <= 0) return;
         bird.flap();
         flap_s.play();
         break;
@@ -56,8 +57,9 @@ canvas.addEventListener('click',function(evt){
             let rect = canvas.getBoundingClientRect();
             let clickX = evt.clientX - rect.left;
             let clickY = evt.clientY - rect.top;
-
-            if(clickX >= start.x && clickX <=start.w+start+x && clickY<=start.h+start.y && clickY >=start.y){
+       
+            if(clickX >= start.x && clickX <=start.w+start.x && clickY<=start.h+start.y && clickY >=start.y){
+              
              pipes.reset();
              bird.speedReset();
              score.reset();
@@ -121,9 +123,9 @@ const bird = {
     w:34,
     h:26,
     frame:0,
-    gravity:0.25,
+    gravity:0.2,
     speed:0,
-    jump: 5,
+    jump:4,
     rotation:0,
     radius:12,
 
@@ -195,7 +197,7 @@ const getReady ={
     }
 }
 
-//game over messgae
+//game over message
 const gameOver ={
     sx:175,
     sy:228,
@@ -232,8 +234,8 @@ const pipes = {
         for(let i=0;i< this.position.length;i++){
             let p=this.position[i];
             let bottomYPos = p.y + this.h + this.gap;
-            ctx.drawImage(script, this.top.sx,this.top.sy,this.w,this.h,p.x,p.y,this.w,this.h);
-            ctx.drawImage(script, this.bottom.sx,this.bottom.sy,this.w,this.h,p.x,bottomYPos,this.w,this.h);
+            ctx.drawImage(sprite, this.top.sx,this.top.sy,this.w,this.h,p.x,p.y,this.w,this.h);
+            ctx.drawImage(sprite, this.bottom.sx,this.bottom.sy,this.w,this.h,p.x,bottomYPos,this.w,this.h);
         }
     },
 
@@ -302,10 +304,10 @@ const score = {
         else if(state.current==state.over){
             
             ctx.font= "20px Ariel";
-            ctx.fillText(this.value,225,186);
-            ctx.strokeText(this.value,225,186);
-            ctx.fillText(this.best,225,228);
-            ctx.strokeText(this.best,225,228);
+            ctx.fillText(this.value,225,175);
+            ctx.strokeText(this.value,225,175);
+            ctx.fillText(this.best,225,215);
+            ctx.strokeText(this.best,225,215);
         }
     },
 
@@ -314,6 +316,30 @@ const score = {
     }
 }
 
+//medals
+const medal = {
+    sX : 359,
+    sY : 157,
+    x : 72,
+    y : 165,
+    width : 45,
+    height : 45,
+    
+    draw: function(){
+     if(state.current == state.over && score.value <= 10){
+        ctx.drawImage(sprite, this.sX, this.sY, this.width, this.height, this.x, this.y, this.width, this.height);
+     }
+     if(state.current == state.over && score.value <= 20){
+        ctx.drawImage(sprite, this.sX, this.sY - 46, this.width, this.height, this.x, this.y, this.width, this.height);
+     }
+     if(state.current == state.over && score.value <= 30){
+        ctx.drawImage(sprite, this.sX - 48, this.sY, this.width, this.height, this.x, this.y, this.width, this.height);
+     }
+     if(state.current == state.over && score.value <= 40){
+        ctx.drawImage(sprite, this.sX - 48, this.sY - 46, this.width, this.height, this.x, this.y, this.width, this.height);
+     }
+    }
+}
 function draw(){
   
  ctx.fillStyle ='#70c5ce';
@@ -326,7 +352,7 @@ function draw(){
  getReady.draw();
  gameOver.draw();
  score.draw();
-
+ medal.draw();
 }
 
 function update(){ 
