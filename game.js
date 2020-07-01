@@ -2,6 +2,7 @@ var canvas = document.querySelector('canvas');
 var ctx = canvas.getContext('2d');
 
 let frames =0;
+const DEGREE = Math.PI/180;
 
 const sprite = new Image();
 sprite.src = "img/sprite.png";
@@ -13,9 +14,9 @@ const state = {
     over:2,
 }
 
-canvas.addEventListener('click',()=>{
+canvas.addEventListener('click',function(evt){
     switch (state.current){
-        case state.current: 
+        case state.getReady: 
         state.current = state.game;
         break;
         case state.game:
@@ -25,6 +26,7 @@ canvas.addEventListener('click',()=>{
         state.current = state.getReady;
         break;    
     }
+   
 })
 const bg ={
   sx:0,
@@ -47,14 +49,25 @@ const fg = {
     h:112,
     x:0,
     y:canvas.height - 112,
+    dx:2,
 
     draw: function(){
         ctx.drawImage(sprite,this.sx,this.sy,this.w,this.h,this.x,this.y,this.w,this.h);
         ctx.drawImage(sprite,this.sx,this.sy,this.w,this.h,this.x + this.w ,this.y,this.w,this.h);
+    },
+
+    update: function(){
+      
+        if (state.current==state.game)
+        {
+        this.x = (this.x - this.dx)%(this.w/2);
+        
+        }
     }
 
-
 }
+
+
 
 const bird = {
     animation: [
@@ -68,10 +81,56 @@ const bird = {
     w:34,
     h:26,
     frame:0,
+    gravity:0.25,
+    speed:0,
+    jump: 5,
+    rotation:0,
 
     draw: function(){
         let bird = this.animation[this.frame];
-        ctx.drawImage(sprite, bird.sx,bird.sy,this.w,this.h,this.x- this.w/2,this.y-this.h/2,this.w,this.h);
+
+        ctx.save();
+        ctx.translate(this.x,this.y);
+        ctx.rotate(this.rotation);
+        ctx.drawImage(sprite, bird.sx,bird.sy,this.w,this.h,- this.w/2,-this.h/2,this.w,this.h);
+        ctx.restore();
+    
+    },
+    flap: function(){
+    
+       this.speed=-this.jump; 
+      
+      
+    },
+    update: function(){
+        this.period= state.current==state.getReady? 10:5;
+        this.frame += frames% this.period ==0 ?1:0;
+        this.frame= this.frame% this.animation.length;
+        
+        if (state.current==state.getReady){
+        this.y=150;
+        this.rotation = 0*DEGREE;
+        }
+        else {
+        this.speed+=this.gravity;
+        this.y+=this.speed;
+
+        if ( this.y+ this.h/2 >= canvas.height - fg.h){
+            this.y = canvas.height - fg.h - this.h/2;
+            if(state.current == state.game){
+                state.current = state.over;
+            
+            }
+        }
+
+        if( this.speed >=  this.jump){
+            this.rotation = 90 * DEGREE;
+            this.frame = 1;
+        }
+        else if (state.current == state.game){
+            this.rotation = -25 * DEGREE;
+        }
+        }
     }
 }
 
@@ -115,7 +174,8 @@ function draw(){
 }
 
 function update(){
-
+ bird.update();
+ fg.update();
 }
 
 function loop(){
