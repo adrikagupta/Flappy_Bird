@@ -125,7 +125,7 @@ const bird = {
     frame:0,
     gravity:0.2,
     speed:0,
-    jump:4,
+    jump:3.6,
     rotation:0,
     radius:12,
 
@@ -226,7 +226,7 @@ const pipes = {
     },
     w:53,
     h:400,
-    gap:85,
+    gap:90,
     maxYPos: -150,
     dx:2,
     draw: function(){
